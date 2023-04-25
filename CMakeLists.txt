@@ -82,3 +82,8 @@ target_include_directories(LearnOpenGL PRIVATE lib/)
 target_include_directories(LearnOpenGL PRIVATE lib/GLFW/)
 target_include_directories(LearnOpenGL PRIVATE lib/GLM/)
 target_include_directories(LearnOpenGL PRIVATE lib/GLAD/)
+
+add_custom_target(BuildAll
+        DEPENDS LearnOpenGL
+        Copy_Assets
+        )
