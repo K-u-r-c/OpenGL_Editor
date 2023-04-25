@@ -19,9 +19,7 @@ add_subdirectory(lib/GLAD)
 
 find_package(OpenGL REQUIRED)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  add_compile_definitions(DEBUG)
-endif()
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 # Add C++ source files in src directory and its subdirectories
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/src/**/*.cpp")
@@ -35,10 +33,32 @@ else()
   add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 endif()
 
+# Find Python
+find_package(Python COMPONENTS Interpreter)
+
+# Check if Python was found
+if(Python_FOUND)
+    message(STATUS "Python found: ${Python_EXECUTABLE}")
+    set(PYTHON_EXECUTABLE ${Python_EXECUTABLE})
+else()
+    message(STATUS "Python not found, trying Python3")
+    # Find Python3
+    find_package(Python3 COMPONENTS Interpreter)
+
+    # Check if Python3 was found
+    if(Python3_FOUND)
+        message(STATUS "Python3 found: ${Python3_EXECUTABLE}")
+        set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+    else()
+        message(STATUS "Python3 not found")
+    endif()
+endif()
+
+
 if(XCODE)
   add_custom_target(
     Copy_Assets ALL
-    COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/copy_assets.py
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/copy_assets.py
       ${CMAKE_CURRENT_SOURCE_DIR}/assets ${CMAKE_CURRENT_SOURCE_DIR}/bin/LearnOpenGL.app/Contents/Resources/assets
     COMMENT "Copying assets to app bundle"
     VERBATIM
@@ -46,7 +66,7 @@ if(XCODE)
 else()
   add_custom_target(
     Copy_Assets ALL
-    COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/copy_assets.py
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/copy_assets.py
       ${CMAKE_CURRENT_SOURCE_DIR}/assets ${CMAKE_CURRENT_SOURCE_DIR}/bin/assets
     COMMENT "Copying assets to bin directory"
     VERBATIM

@@ -13,7 +13,8 @@ class File {
   File(const std::filesystem::path& binaryPath);
   ~File();
 
-  std::filesystem::path getPath() const;
+  std::filesystem::path getBinaryPath() const;
+  std::string getByRelativePath(const std::string& path) const;
 
   Shader createShader(const std::string& vertexPath, const std::string& fragmentPath);
   // TODO: Probably other create assets like texture, model, etc.
