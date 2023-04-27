@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 
-MyFilesystem::File::File(const std::filesystem::path& path) {
+mfsys::filesystem::filesystem(const std::filesystem::path &path) {
   if (!std::filesystem::exists(path)) throw std::runtime_error("Binary path does not exist");
 
   if (path.string().find(".app") != std::string::npos) {
@@ -16,11 +16,11 @@ MyFilesystem::File::File(const std::filesystem::path& path) {
 #endif
 }
 
-MyFilesystem::File::~File() {}
+mfsys::filesystem::~filesystem() = default;
 
-std::filesystem::path MyFilesystem::File::getBinaryPath() const { return binaryPath; }
+std::filesystem::path mfsys::filesystem::getBinaryPath() const { return binaryPath; }
 
-std::string MyFilesystem::File::getByRelativePath(const std::string& path) const {
+std::string mfsys::filesystem::get(const std::string &path) const {
   std::string result = binaryPath.string();
 
   char separator = std::filesystem::path::preferred_separator;
@@ -33,15 +33,15 @@ std::string MyFilesystem::File::getByRelativePath(const std::string& path) const
   }
 
 #ifdef DEBUG
-  std::cout << "getByRelativePath::Result => " << result << std::endl;
+  std::cout << "get::Result => " << result << std::endl;
 #endif
 
   return result;
 }
 
-Shader MyFilesystem::File::createShader(const std::string& vertexPath, const std::string& fragmentPath) {
-  std::string vertex_shader = getByRelativePath(vertexPath);
-  std::string fragment_shader = getByRelativePath(fragmentPath);
+shader mfsys::filesystem::createShader(const std::string &vertexPath, const std::string &fragmentPath) const {
+  std::string vertex_shader = get(vertexPath);
+  std::string fragment_shader = get(fragmentPath);
 
-  return Shader(vertex_shader.c_str(), fragment_shader.c_str());
+  return {vertex_shader.c_str(), fragment_shader.c_str()};
 }

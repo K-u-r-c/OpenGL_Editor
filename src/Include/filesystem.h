@@ -1,28 +1,30 @@
-#ifndef F7CC37F7_B62E_4F81_9776_D32F7236FCF3
-#define F7CC37F7_B62E_4F81_9776_D32F7236FCF3
+#ifndef FILESYSTEM_H
+#define FILESYSTEM_H
 
 #include <string>
 #include <filesystem>
 
 #include "shader.h"
 
-namespace MyFilesystem {
+namespace mfsys {
 
-class File {
+class filesystem {
  public:
-  File(const std::filesystem::path& binaryPath);
-  ~File();
+  explicit filesystem(const std::filesystem::path &binaryPath);
 
-  std::filesystem::path getBinaryPath() const;
-  std::string getByRelativePath(const std::string& path) const;
+  ~filesystem();
 
-  Shader createShader(const std::string& vertexPath, const std::string& fragmentPath);
+  [[nodiscard]] std::filesystem::path getBinaryPath() const;
+
+  [[nodiscard]] std::string get(const std::string &path) const;
+
+  [[nodiscard]] shader createShader(const std::string &vertexPath, const std::string &fragmentPath) const;
   // TODO: Probably other create assets like texture, model, etc.
 
  private:
   std::filesystem::path binaryPath;
 };
 
-}  // namespace MyFilesystem
+}  // namespace mfsys
 
-#endif /* F7CC37F7_B62E_4F81_9776_D32F7236FCF3 */
+#endif /* FILESYSTEM_H */
