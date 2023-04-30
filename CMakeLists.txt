@@ -30,7 +30,7 @@ file(GLOB_RECURSE HEADERS "${CMAKE_SOURCE_DIR}/src/include/*.h" "${CMAKE_SOURCE_
 if (XCODE)
     add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES} ${HEADERS})
 else ()
-    add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+    add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} src/Include/Utility/FramesPerSecondCounter.h)
 endif ()
 
 # Find Python

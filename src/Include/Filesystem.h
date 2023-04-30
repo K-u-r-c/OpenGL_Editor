@@ -4,21 +4,21 @@
 #include <string>
 #include <filesystem>
 
-#include "shader.h"
+#include "Shader.h"
 
 namespace mfsys {
 
-class filesystem {
+class Filesystem {
  public:
-  explicit filesystem(const std::filesystem::path &binaryPath);
+  explicit Filesystem(const std::filesystem::path &binaryPath);
 
-  ~filesystem();
+  ~Filesystem();
 
   [[nodiscard]] std::filesystem::path getBinaryPath() const;
 
   [[nodiscard]] std::string get(const std::string &path) const;
 
-  [[nodiscard]] shader createShader(const std::string &vertexPath, const std::string &fragmentPath) const;
+  [[nodiscard]] Shader createShader(const std::string &vertexPath, const std::string &fragmentPath) const;
   // TODO: Probably other create assets like texture, model, etc.
 
  private:

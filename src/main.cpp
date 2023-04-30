@@ -4,20 +4,30 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
-
 #include "stb_image.h"
 
 #include <iostream>
 #include <filesystem>
 
-#include "filesystem.h"
+#include "Filesystem.h"
+#include "Utility/Camera.h"
+#include "Utility/FramesPerSecondCounter.h"
 
-// Function prototypes
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+struct MouseState {
+  glm::vec2 pos = glm::vec2(0);
+  bool pressedRight = false;
+} mouseState;
 
-void processInput(GLFWwindow *window);
+CameraPositioner_FirstPerson positioner(glm::vec3(0), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+Camera camera(positioner);
 
-int main(int argc, char **argv) {
+const unsigned int SCR_WIDTH  = 1920;
+const unsigned int SCR_HEIGHT = 1080;
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
+int main(int, char **argv) {
 #pragma region Setup
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -28,7 +38,7 @@ int main(int argc, char **argv) {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-  GLFWwindow *window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
+  GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", nullptr, nullptr);
   if (window == nullptr) {
 #ifdef DEBUG
     std::cout << "Failed to create GLFW window" << std::endl;
@@ -49,14 +59,44 @@ int main(int argc, char **argv) {
   std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 #endif
 
-  glViewport(0, 0, 800, 600);
+  glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  glfwSetFramebufferSizeCallback(window, [](auto* window, int x, int y) {
+    glViewport(0, 0, x, y);
+  });
+
+  glfwSetCursorPosCallback(window, [](auto* window, double x, double y) {
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    mouseState.pos.x = static_cast<float>(x / width);
+    mouseState.pos.y = static_cast<float>(y / height);
+  });
+
+  glfwSetMouseButtonCallback(window, [](auto* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action != GLFW_RELEASE) {
+      mouseState.pressedRight = action == GLFW_PRESS;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+      mouseState.pressedRight = false;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+  });
+
+  glfwSetKeyCallback(window, [](auto* window, int key, int scancode, int action, int mods) {
+    const bool pressed = action == GLFW_PRESS || action == GLFW_REPEAT;
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) glfwSetWindowShouldClose(window, GLFW_TRUE);
+    if (key == GLFW_KEY_W) positioner.movement.forward = pressed;
+    if (key == GLFW_KEY_S) positioner.movement.backward = pressed;
+    if (key == GLFW_KEY_A) positioner.movement.left = pressed;
+    if (key == GLFW_KEY_D) positioner.movement.right = pressed;
+    if (key == GLFW_KEY_SPACE) positioner.movement.up = pressed;
+    if (key == GLFW_KEY_LEFT_CONTROL) positioner.movement.down = pressed;
+  });
 
 #pragma endregion  // Setup
 
-  mfsys::filesystem filesystem((std::filesystem::path) argv[0]);
-  shader myShader = filesystem.createShader("assets/shaders/shader.vert", "assets/shaders/shader.frag");
+  mfsys::Filesystem filesystem((std::filesystem::path) argv[0]);
+  Shader myShader = filesystem.createShader("assets/shaders/Shader.vert", "assets/shaders/Shader.frag");
 
   glEnable(GL_DEPTH_TEST);
 
@@ -126,7 +166,7 @@ int main(int argc, char **argv) {
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
   glEnableVertexAttribArray(1);
@@ -174,8 +214,26 @@ int main(int argc, char **argv) {
   // uncomment this call to draw in wireframe polygons.
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+#ifdef DEBUG
+  FramesPerSecondCounter fpsCounter(0.5f);
+#endif
+
   while (!glfwWindowShouldClose(window)) {
-    processInput(window);
+#ifdef DEBUG
+    fpsCounter.tick(deltaTime);
+#endif
+
+    auto currentFrame = static_cast<float>(glfwGetTime());
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
+    if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_RELEASE) {
+      positioner.movement.fastSpeed = true;
+    } else {
+      positioner.movement.fastSpeed = false;
+    }
+
+    positioner.update(deltaTime, mouseState.pos, mouseState.pressedRight);
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -187,16 +245,15 @@ int main(int argc, char **argv) {
     glBindTexture(GL_TEXTURE_2D, texture2);
 
     myShader.use();
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    glm::mat4 view = camera.getViewMatrix();
+    glm::mat4 projection =
+      glm::perspective(glm::radians(45.0f), static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 1000.0f);
     myShader.setMat4("projection", projection);
     myShader.setMat4("view", view);
 
     glBindVertexArray(VAO);
     for (unsigned int i = 0; i < 10; i++) {
-      // calculate the model matrix for each object and pass it to shader before drawing
+      // calculate the model matrix for each object and pass it to Shader before drawing
       glm::mat4 model = glm::mat4(1.0f);
       model = glm::translate(model, cubePositions[i]);
       float angle = 20.0f * i;
@@ -213,11 +270,4 @@ int main(int argc, char **argv) {
   glfwTerminate();
 
   return 0;
-}
-
-// Executes every time the window is resized
-void framebuffer_size_callback(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
-
-void processInput(GLFWwindow *window) {
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
 }

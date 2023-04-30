@@ -8,13 +8,13 @@
 #include <string>
 #include <fstream>
 
-class shader {
+class Shader {
  public:
-  shader(const char *vertexPath, const char *fragmentPath);
+  Shader(const char *vertexPath, const char *fragmentPath);
 
-  shader(const shader &shader);
+  Shader(const Shader &shader);
 
-  ~shader();
+  ~Shader();
 
   void use() const;
 
