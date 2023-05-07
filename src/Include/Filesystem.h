@@ -19,6 +19,7 @@ class Filesystem {
   [[nodiscard]] std::string get(const std::string &path) const;
 
   [[nodiscard]] Shader createShader(const std::string &vertexPath, const std::string &fragmentPath) const;
+  [[nodiscard]] unsigned int loadTexture(const std::string &path);
   // TODO: Probably other create assets like texture, model, etc.
 
  private:

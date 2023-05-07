@@ -12,6 +12,9 @@ class CameraPositionerInterface {
 
   [[nodiscard]] virtual glm::mat4 getViewMatrix() const = 0;
   [[nodiscard]] virtual glm::vec3 getPosition() const = 0;
+  [[nodiscard]] virtual float getFOV() const = 0;
+  [[nodiscard]] virtual float getZNear() const = 0;
+  [[nodiscard]] virtual float getZFar() const = 0;
 };
 
 class Camera final {
@@ -23,6 +26,9 @@ class Camera final {
 
   [[nodiscard]] glm::mat4 getViewMatrix() const { return positioner_->getViewMatrix(); }
   [[nodiscard]] glm::vec3 getPosition() const { return positioner_->getPosition(); }
+  [[nodiscard]] float getFOV() const { return positioner_->getFOV(); }
+  [[nodiscard]] float getZNear() const { return positioner_->getZNear(); }
+  [[nodiscard]] float getZFar() const { return positioner_->getZFar(); }
 
  private:
   const CameraPositionerInterface* positioner_;
@@ -82,10 +88,18 @@ class CameraPositioner_FirstPerson final : public CameraPositionerInterface {
   }
 
   [[nodiscard]] glm::vec3 getPosition() const override { return _cameraPosition; }
-
   void setPosition(const glm::vec3& pos) { _cameraPosition = pos; }
 
   void resetMousePosition(const glm::vec2& p) { _mousePos = p; }
+
+  [[nodiscard]] float getFOV() const override { return _fov; }
+  void setFOV(const float fov) { _fov = fov; }
+
+  [[nodiscard]] float getZNear() const override { return _zNear; }
+  void setZNear(const float zNear) { _zNear = zNear; }
+
+  [[nodiscard]] float getZFar() const override { return _zFar; }
+  void setZFar(const float zFar) { _zFar = zFar; }
 
   struct Movement {
     bool forward = false;
@@ -109,6 +123,9 @@ class CameraPositioner_FirstPerson final : public CameraPositionerInterface {
   glm::quat _cameraOrientation = glm::quat(glm::vec3(0));
   glm::vec3 _moveSpeed = glm::vec3(0);
   glm::vec3 _up = glm::vec3(0.0f, 0.0f, 1.0f);
+  float _fov = 45.0f;
+  float _zNear = 0.1f;
+  float _zFar = 1000.0f;
 };
 
 #endif //CAMERA_H

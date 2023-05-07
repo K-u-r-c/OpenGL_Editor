@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(LearnOpenGL)
+project(3D-Engine)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -27,11 +27,11 @@ file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/s
 # Add header files in include directory and its subdirectories
 file(GLOB_RECURSE HEADERS "${CMAKE_SOURCE_DIR}/src/include/*.h" "${CMAKE_SOURCE_DIR}/src/include/**/*.h")
 
-if (XCODE)
-    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES} ${HEADERS})
-else ()
-    add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} src/Include/Utility/FramesPerSecondCounter.h)
-endif ()
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+
+if(XCODE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE TRUE)
+endif()
 
 # Find Python
 find_package(Python COMPONENTS Interpreter)
@@ -54,36 +54,31 @@ else ()
     endif ()
 endif ()
 
+set(COPY_TO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin/assets)
 
-if (XCODE)
-    add_custom_target(
-            Copy_Assets ALL
-            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/copy_assets.py
-            ${CMAKE_CURRENT_SOURCE_DIR}/assets ${CMAKE_CURRENT_SOURCE_DIR}/bin/LearnOpenGL.app/Contents/Resources/assets
-            COMMENT "Copying assets to app bundle"
-            VERBATIM
-    )
-else ()
-    add_custom_target(
-            Copy_Assets ALL
-            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/copy_assets.py
-            ${CMAKE_CURRENT_SOURCE_DIR}/assets ${CMAKE_CURRENT_SOURCE_DIR}/bin/assets
-            COMMENT "Copying assets to bin directory"
-            VERBATIM
-    )
-endif ()
+if(XCODE)
+    set(COPY_TO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin/${PROJECT_NAME}.app/Contents/Resources/assets)
+endif()
 
-target_link_libraries(LearnOpenGL glfw)
-target_link_libraries(LearnOpenGL OpenGL::GL)
-target_link_libraries(LearnOpenGL glad)
+add_custom_target(
+    Copy_Assets ALL
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/copy_assets.py
+    ${CMAKE_CURRENT_SOURCE_DIR}/assets ${COPY_TO_DIR}
+    COMMENT "Copying assets to ${COPY_TO_DIR}"
+    VERBATIM
+)
 
-target_include_directories(LearnOpenGL PRIVATE src/include/)
-target_include_directories(LearnOpenGL PRIVATE lib/)
-target_include_directories(LearnOpenGL PRIVATE lib/GLFW/)
-target_include_directories(LearnOpenGL PRIVATE lib/GLM/)
-target_include_directories(LearnOpenGL PRIVATE lib/GLAD/)
+target_link_libraries(${PROJECT_NAME} glfw)
+target_link_libraries(${PROJECT_NAME} OpenGL::GL)
+target_link_libraries(${PROJECT_NAME} glad)
+
+target_include_directories(${PROJECT_NAME} PRIVATE src/include/)
+target_include_directories(${PROJECT_NAME} PRIVATE lib/)
+target_include_directories(${PROJECT_NAME} PRIVATE lib/GLFW/)
+target_include_directories(${PROJECT_NAME} PRIVATE lib/GLM/)
+target_include_directories(${PROJECT_NAME} PRIVATE lib/GLAD/)
 
 add_custom_target(BuildAll
-        DEPENDS LearnOpenGL
+        DEPENDS ${PROJECT_NAME}
         Copy_Assets
         )
