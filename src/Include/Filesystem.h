@@ -8,22 +8,22 @@
 
 namespace mfsys {
 
-class Filesystem {
+class filesystem {
  public:
-  explicit Filesystem(const std::filesystem::path &binaryPath);
+  explicit filesystem(const std::filesystem::path &binary_path);
 
-  ~Filesystem();
+  ~filesystem();
 
-  [[nodiscard]] std::filesystem::path getBinaryPath() const;
+  [[nodiscard]] std::filesystem::path get_binary_path() const;
 
   [[nodiscard]] std::string get(const std::string &path) const;
 
-  [[nodiscard]] Shader createShader(const std::string &vertexPath, const std::string &fragmentPath) const;
-  [[nodiscard]] unsigned int loadTexture(const std::string &path);
+  [[nodiscard]] Shader create_shader(const std::string& vertex_path, const std::string& fragment_path) const;
+  [[nodiscard]] unsigned int load_texture(const std::string &path) const;
   // TODO: Probably other create assets like texture, model, etc.
 
  private:
-  std::filesystem::path binaryPath;
+  std::filesystem::path binary_path_;
 };
 
 }  // namespace mfsys
