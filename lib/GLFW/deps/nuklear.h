@@ -540,7 +540,7 @@ enum nk_symbol_type {
 /// __nk_init_custom__  | Initializes context from two buffers. One for draw commands the other for window/panel/table allocations
 /// __nk_clear__        | Called at the end of the frame to reset and prepare the context for the next frame
 /// __nk_free__         | Shutdown and free all memory allocated inside the context
-/// __nk_set_user_data__| Utility function to pass user data to draw command
+/// __nk_set_user_data__| utility function to pass user data to draw command
  */
 #ifdef NK_INCLUDE_DEFAULT_ALLOCATOR
 /*/// #### nk_init_default
@@ -2190,7 +2190,7 @@ NK_API void nk_window_show_if(struct nk_context*, const char *name, enum nk_show
 /// nk_layout_set_min_row_height            | Set the currently used minimum row height to a specified value
 /// nk_layout_reset_min_row_height          | Resets the currently used minimum row height to font height
 /// nk_layout_widget_bounds                 | Calculates current width a static layout row can fit inside a window
-/// nk_layout_ratio_from_pixel              | Utility functions to calculate window ratio from pixel size
+/// nk_layout_ratio_from_pixel              | utility functions to calculate window ratio from pixel size
 //
 /// nk_layout_row_dynamic                   | Current layout is divided into n same sized growing columns
 /// nk_layout_row_static                    | Current layout is divided into n same fixed sized columns
@@ -2256,7 +2256,7 @@ NK_API void nk_layout_reset_min_row_height(struct nk_context*);
 */
 NK_API struct nk_rect nk_layout_widget_bounds(struct nk_context*);
 /*/// #### nk_layout_ratio_from_pixel
-/// Utility functions to calculate window ratio from pixel size
+/// utility functions to calculate window ratio from pixel size
 /// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~c
 /// float nk_layout_ratio_from_pixel(struct nk_context*, float pixel_width);
 /// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2448,7 +2448,7 @@ NK_API void nk_layout_space_push(struct nk_context*, struct nk_rect bounds);
 */
 NK_API void nk_layout_space_end(struct nk_context*);
 /*/// #### nk_layout_space_bounds
-/// Utility function to calculate total space allocated for `nk_layout_space`
+/// utility function to calculate total space allocated for `nk_layout_space`
 /// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~c
 /// struct nk_rect nk_layout_space_bounds(struct nk_context*);
 /// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

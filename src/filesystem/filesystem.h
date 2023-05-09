@@ -4,7 +4,7 @@
 #include <string>
 #include <filesystem>
 
-#include "Shader.h"
+#include "../shader/shader.h"
 
 namespace mfsys {
 
@@ -18,8 +18,8 @@ class filesystem {
 
   [[nodiscard]] std::string get(const std::string &path) const;
 
-  [[nodiscard]] Shader create_shader(const std::string& vertex_path, const std::string& fragment_path) const;
-  [[nodiscard]] unsigned int load_texture(const std::string &path) const;
+  [[nodiscard]] shader create_shader(const std::string& vertex_path, const std::string& fragment_path) const;
+  [[nodiscard]] uint32_t load_texture(const std::string &path) const;
   // TODO: Probably other create assets like texture, model, etc.
 
  private:

@@ -6,9 +6,9 @@
 #include <iostream>
 #include <filesystem>
 
-#include "filesystem.h"
-#include "Utility/camera.h"
-#include "Utility/frames_per_second_counter.h"
+#include "filesystem/filesystem.h"
+#include "camera/camera.h"
+#include "utility/frames_per_second_counter.h"
 
 struct mouse_state {
   glm::vec2 pos = glm::vec2(0);
@@ -18,13 +18,11 @@ struct mouse_state {
 camera_positioner_first_person positioner(glm::vec3(-5.0f, 5.0f, -5.0f), glm::vec3(0), glm::vec3(0.0f, 1.0f, 0.0f));
 camera camera(positioner);
 
-//#ifdef DEBUG
 frames_per_second_counter fps_counter(0.5);
-//#endif
 
-constexpr unsigned int scr_width  = 1920;
-constexpr unsigned int scr_height = 1080;
-float ratio = static_cast<float>(scr_width) / static_cast<float>(scr_height);
+GLsizei scr_width  = 1600;
+GLsizei scr_height = 900;
+float_t ratio = static_cast<float_t>(scr_width) / static_cast<float_t>(scr_height);
 
 double delta_time = 0.0;
 double last_frame = 0.0;
@@ -35,10 +33,20 @@ glm::mat4 projection = glm::perspective(glm::radians(camera.get_fov()), ratio, c
 
 int main(int, char **argv) {
 #pragma region Setup
+
+#ifdef __APPLE__
+  glfwInit();
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+#else
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
 
   GLFWwindow *window = glfwCreateWindow(scr_width, scr_height, "3D-Engine", nullptr, nullptr);
   if (window == nullptr) {
@@ -62,6 +70,7 @@ int main(int, char **argv) {
   std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 #endif
 
+  glfwGetFramebufferSize(window, &scr_width, &scr_height);
   glViewport(0, 0, scr_width, scr_height);
 
   glfwSetFramebufferSizeCallback(window, [](auto* window, int x, int y) {
@@ -102,9 +111,15 @@ int main(int, char **argv) {
 #pragma endregion  // Setup
 
   const mfsys::filesystem filesystem((std::filesystem::path) argv[0]);
-  const Shader my_shader = filesystem.create_shader("assets/shaders/Shader.vert", "assets/shaders/Shader.frag");
-  const Shader light_shader = filesystem.create_shader("assets/shaders/lightCube.vert", "assets/shaders/lightCube.frag");
-  const Shader grid_shader = filesystem.create_shader("assets/shaders/grid.vert", "assets/shaders/grid.frag");
+#ifdef __APPLE__
+  const shader my_shader = filesystem.create_shader("assets/shaders/shader410.vert", "assets/shaders/shader410.frag");
+  const shader light_shader = filesystem.create_shader("assets/shaders/lightCube410.vert", "assets/shaders/lightCube410.frag");
+  const shader grid_shader = filesystem.create_shader("assets/shaders/grid/grid410.vert", "assets/shaders/grid/grid410.frag");
+#else
+  const shader my_shader = filesystem.create_shader("assets/shaders/shader460.vert", "assets/shaders/shader460.frag");
+  const shader light_shader = filesystem.create_shader("assets/shaders/lightCube460.vert", "assets/shaders/lightCube460.frag");
+  const shader grid_shader = filesystem.create_shader("assets/shaders/grid/grid460.vert", "assets/shaders/grid/grid460.frag");
+#endif
 
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_MULTISAMPLE);
@@ -198,9 +213,7 @@ int main(int, char **argv) {
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
   while (!glfwWindowShouldClose(window)) {
-//#ifdef DEBUG
     fps_counter.tick(delta_time);
-//#endif
 
     const auto current_frame = glfwGetTime();
     delta_time = current_frame - last_frame;
@@ -258,7 +271,7 @@ int main(int, char **argv) {
     grid_shader.setVec3("cameraPos", camera.get_position());
     grid_shader.setFloat("gridSize", camera.get_z_far());
     grid_shader.setFloat("gridCellSize", 1 / 2.0f);
-    glDrawArraysInstancedBaseInstance(GL_TRIANGLES, 0, 6, 1, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glfwSwapBuffers(window);
     glfwPollEvents();

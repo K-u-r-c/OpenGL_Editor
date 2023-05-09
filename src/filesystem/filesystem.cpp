@@ -43,21 +43,20 @@ std::string mfsys::filesystem::get(const std::string &path) const {
   return result;
 }
 
-Shader mfsys::filesystem::create_shader(const std::string &vertex_path, const std::string &fragment_path) const {
+shader mfsys::filesystem::create_shader(const std::string &vertex_path, const std::string &fragment_path) const {
   const std::string vertexShader = get(vertex_path);
   const std::string fragment_shader = get(fragment_path);
 
-  return {vertexShader.c_str(), fragment_shader.c_str()};
+  return {vertexShader, fragment_shader};
 }
 
-unsigned int mfsys::filesystem::load_texture(const std::string &path) const
-{
-  unsigned int texture_id;
+uint32_t mfsys::filesystem::load_texture(const std::string &path) const {
+  uint32_t texture_id;
   glGenTextures(1, &texture_id);
 
   const std::string texture = get(path);
 
-  int width, height, nr_components;
+  int32_t width, height, nr_components;
   if (unsigned char *data = stbi_load(texture.c_str(), &width, &height, &nr_components, 0)) {
     GLint format = 0;
     if (nr_components == 1)

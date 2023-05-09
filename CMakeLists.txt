@@ -72,7 +72,6 @@ target_link_libraries(${PROJECT_NAME} glfw)
 target_link_libraries(${PROJECT_NAME} OpenGL::GL)
 target_link_libraries(${PROJECT_NAME} glad)
 
-target_include_directories(${PROJECT_NAME} PRIVATE src/include/)
 target_include_directories(${PROJECT_NAME} PRIVATE lib/)
 target_include_directories(${PROJECT_NAME} PRIVATE lib/GLFW/)
 target_include_directories(${PROJECT_NAME} PRIVATE lib/GLM/)
