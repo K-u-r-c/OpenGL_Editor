@@ -4,7 +4,7 @@
 #include <string>
 #include <filesystem>
 
-#include "../shader/shader.h"
+#include "../../shader/public/shader.h"
 
 namespace mfsys {
 

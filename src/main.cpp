@@ -6,9 +6,9 @@
 #include <iostream>
 #include <filesystem>
 
-#include "filesystem/filesystem.h"
-#include "camera/camera.h"
-#include "utility/frames_per_second_counter.h"
+#include "filesystem/public/filesystem.h"
+#include "camera/public/camera.h"
+#include "utility/public/frames_per_second_counter.h"
 
 struct mouse_state {
   glm::vec2 pos = glm::vec2(0);
@@ -226,8 +226,8 @@ int main(int, char **argv) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Make light position run in circle
-    light_pos.x = sin(glfwGetTime()) * 2.0;
-    light_pos.z = cos(glfwGetTime()) * 2.0;
+    light_pos.x = sinf(static_cast<float>(glfwGetTime())) * 2.0f;
+    light_pos.z = cosf(static_cast<float>(glfwGetTime())) * 2.0f;
 
     my_shader.use();
     my_shader.setFloat("material.shininess", 32.0f);

@@ -16,6 +16,7 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(lib/GLFW)
 add_subdirectory(lib/GLM)
 add_subdirectory(lib/GLAD)
+add_subdirectory(modules/feather) # physics module
 
 find_package(OpenGL REQUIRED)
 
@@ -71,11 +72,13 @@ add_custom_target(
 target_link_libraries(${PROJECT_NAME} glfw)
 target_link_libraries(${PROJECT_NAME} OpenGL::GL)
 target_link_libraries(${PROJECT_NAME} glad)
+target_link_libraries(${PROJECT_NAME} feather)
 
 target_include_directories(${PROJECT_NAME} PRIVATE lib/)
 target_include_directories(${PROJECT_NAME} PRIVATE lib/GLFW/)
 target_include_directories(${PROJECT_NAME} PRIVATE lib/GLM/)
 target_include_directories(${PROJECT_NAME} PRIVATE lib/GLAD/)
+target_include_directories(${PROJECT_NAME} PRIVATE modules/feather/public/)
 
 add_custom_target(BuildAll
         DEPENDS ${PROJECT_NAME}
